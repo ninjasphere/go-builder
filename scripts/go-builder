@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+GO_BUILDER_IMAGE=${GO_BUILDER_IMAGE:-ninjasphere/go-builder}
+
 die() {
 	echo "$*" 1>&2
 	exit 1
@@ -9,8 +11,13 @@ usage() {
 	cat <<EOF
 go-builder {command} {args...}
 
-where {command} {args...} is one of:
-	usage
+{command} is run within a docker container based on ${GO_BUILDER_IMAGE} with the arguments specified.
+
+- /data/go/src is mapped to ${GOPATH}/src
+- /data/go/bin/${GOOS}_${GOARCH} is mapped to ${GOPATH}/bin/${GOOS}_${GOARCH}
+- the working directory is set to /data/go${PWD#${GOPATH}}.
+
+golang, make, docker are all available within the container.
 EOF
 }
 
@@ -23,6 +30,9 @@ case "$cmd" in
 	;;
 	*)
 		test -n "$GOPATH" || die "usage: GOPATH must be set up in host environment."
+		if test "${PWD#${GOPATH}}" = "${PWD}"; then
+			die "$(pwd) is not within ${GOPATH} - cannot execute"
+		fi
 		GOOS=${GOOS:-linux}
 		GOARCH=${GOARCH:-amd64}
 		mkdir -p ${GOPATH}/bin/${GOOS}_${GOARCH}
@@ -36,7 +46,7 @@ case "$cmd" in
 			-v ${GOPATH}/bin/${GOOS}_${GOARCH}:/data/go/bin \
 			-v ${GOPATH}/src:/data/go/src \
 			-v ${PWD}:/data/src \
-			ninjasphere/go-builder \
+			${GO_BUILDER_IMAGE} \
 			"$cmd" "$@"
 	;;
 esac
