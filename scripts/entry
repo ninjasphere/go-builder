@@ -4,21 +4,7 @@ export GOPATH=/data/go
 export GOROOT=/usr/local/go
 
 if test $# -eq 0; then
-	cat <<EOF
-#!/bin/bash
-USR_LOCAL=\${USR_LOCAL:-/usr/local}
-USR_LOCAL=\${USR_LOCAL%/}
-USR_LOCAL_BIN=\${USR_LOCAL}\${USR_LOCAL:+/}bin
-install() {
-	sudo mkdir -p \${USR_LOCAL_BIN} &&
-	echo "$(openssl base64 </scripts/go-builder)" | openssl base64 -d | sudo tee \${USR_LOCAL_BIN}/go-builder >/dev/null &&
-	sudo chmod ugo+x \${USR_LOCAL_BIN}/go-builder
-	echo "ok"
-}
-install
-
-# this script will install go-builder into /usr/local/bin/
-EOF
+	/scripts/builder installer
 else
 	test -n "$SRC" && cd "${GOPATH}${SRC}"
 	exec "$@"

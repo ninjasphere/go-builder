@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+VERSION=1.1
+DEFAULT_BUILDER_IMAGE=ninjasphere/go-builder
+
+BUILDER_IMAGE=${BUILDER_IMAGE:-${DEFAULT_BUILDER_IMAGE}}
+BUILDER_NAME=$(basename "$BUILDER_IMAGE")
+BUILDER_NAME=${BUILDER_NAME%:*} # remove tag
+
+GOOS=${GOOS:-linux}
+GOARCH=${GOARCH:-amd64}
+
+die() {
+	echo "$*" 1>&2
+	exit 1
+}
+
+usage() {
+	cat <<EOF
+${BUILDER_NAME} {command} {args...}
+
+{command} is run within a docker container based on '${BUILDER_IMAGE}' with the arguments specified.
+
+- /data/go/src is mapped to ${GOPATH}/src
+- /data/go/bin is mapped to ${GOPATH}/bin/${GOOS}_${GOARCH}
+- the working directory is set to /data/go${PWD#${GOPATH}}.
+
+golang, make, docker are all available within the container.
+EOF
+}
+
+cmd=${1:-usage}
+shift 1
+
+case "$cmd" in
+	usage)
+		$cmd "$@"
+	;;
+	version)
+		echo ${BUILDER_NAME}-${VERSION}
+	;;
+	installer)
+		cat <<EOF
+#!/bin/bash
+BUILDER_BIN=\${BUILDER_BIN:-${BUILDER_BIN:-/usr/local/bin}}
+install() {
+	sudo mkdir -p "\${BUILDER_BIN}" &&
+	echo "$(
+		cat /scripts/builder |
+		sed "s|^DEFAULT_BUILDER_IMAGE=.*|DEFAULT_BUILDER_IMAGE=${BUILDER_IMAGE}|" |
+		openssl base64
+	)" | openssl base64 -d | sudo tee "\${BUILDER_BIN}/${BUILDER_NAME}" >/dev/null &&
+	sudo chmod ugo+x "\${BUILDER_BIN}/${BUILDER_NAME}" &&
+	echo "installed \${BUILDER_BIN}/${BUILDER_NAME}." ||
+	exit \$?
+}
+install
+
+# this script will install "${BUILDER_NAME}" into "${BUILDER_BIN}/${BUILDER_NAME}".
+EOF
+
+	;;
+	*)
+		test -n "$GOPATH" || die "usage: GOPATH must be set up in host environment."
+		if test "${PWD#${GOPATH}}" = "${PWD}"; then
+			die "$(pwd) is not within ${GOPATH} - cannot execute"
+		fi
+		mkdir -p ${GOPATH}/bin/${GOOS}_${GOARCH}
+		docker run \
+			--rm \
+			-it \
+			-e GOOS=${GOOS} \
+			-e GOARCH=${GOARCH} \
+			-e SRC=${PWD#${GOPATH}} \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v ${GOPATH}/bin/${GOOS}_${GOARCH}:/data/go/bin \
+			-v ${GOPATH}/src:/data/go/src \
+			-v ${PWD}:/data/src \
+			${BUILDER_IMAGE} \
+			"$cmd" "$@"
+	;;
+esac
