@@ -44,7 +44,7 @@ The output of 'go install' will be written to ${GOPATH}/bin/${GOOS}_${GOARCH} in
 #VARIANTS
 
 It might be that ninjasphere/go-builder doesn't contain all the tools you need. In this case, you can create a derivative
-of ninjasphere/go-builder and called, say, acme/foobar. To install the foobar tool, run:
+of ninjasphere/go-builder called, say, acme/foobar. Then, to install the foobar tool, run:
 
 ```
 docker run -e BUILDER_IMAGE=acme/foobar --rm acme/foobar | bash
@@ -52,7 +52,7 @@ docker run -e BUILDER_IMAGE=acme/foobar --rm acme/foobar | bash
 
 This will install /usr/local/bin/foobar which will run a container based on the acme/foobar image.
 
-To vary the name of the installed binary, add a -e BUILDER_BIN argument to specify where the installation should occur. By default, the script will be installed in /usr/local/bin/
+To vary the location of the installed script, add a -e BUILDER_BIN argument to specify where the installation should occur. By default, the script will be installed in /usr/local/bin.
 
 #RESTRICTIONS
 
