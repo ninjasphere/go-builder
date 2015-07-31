@@ -67,6 +67,9 @@ To vary the name of the installed binary, add a -e BUILDER_BIN argument to speci
 
 #REVISION
 
+##1.2
+* build go tools for windows/amd64, darwin/amd64 and linux/arm to image
+
 ##1.1
 * support for build tool images called something other than ninjasphere/go-builder
 
