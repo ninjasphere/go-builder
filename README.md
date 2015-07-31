@@ -7,7 +7,7 @@ This docker image provides tools for performing mainly go builds. The execution 
 
 * a fixed version of go
 * a bind mount of $GOPATH/src on /data/go/src
-* a bind mount of ${PWD}/bin/${GOOS}_${GOARCH} on /data/go/bin
+* a bind mount of ${GOPATH}/bin/${GOOS}_${GOARCH} on /data/go/bin
 * a bind mount of /var/run/docker.sock
 * a working directory of /data/go/${PWD#${GOPATH}}
 * various useful tools like docker, make, curl, etc
@@ -23,8 +23,6 @@ Install /usr/local/bin/go-builder with the following command
 docker run --rm ninjasphere/go-builder | bash
 ```
 
-go-builder will run its arguments as a command within the docker container after establishing various bind mounts, environment variables and the working directory.
-
 #RUNNING
 
 To run a build command, execute:
@@ -33,7 +31,9 @@ To run a build command, execute:
 go-builder {build-cmd} {args..}
 ```
 
-To start a bash shell within the container:
+go-builder will run its arguments as a command within the docker container after establishing various bind mounts, environment variables and the working directory.
+
+For example, to start a bash shell within the container:
 
 ```
 go-builder bash
@@ -58,11 +58,10 @@ To vary the name of the installed binary, add a -e BUILDER_BIN argument to speci
 
 * GOPATH must be configured in the docker client's environment.
 * On Windows and OSX, GOPATH must point to a directory within the user's home directory to take advantage of the user volume mounting performed by boot2docker.
-* The current working directory on the docker client must be a subdirectory of $GOPATH
+* The current working directory on the docker client must be a directory somewhere within $GOPATH
 
 #TODO
 
-* ensure that non linux/amd64 go builds work as expected.
 * add support for cross-compilation of C binaries.
 
 #REVISION
