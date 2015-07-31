@@ -45,7 +45,7 @@ BUILDER_BIN=\${BUILDER_BIN:-${BUILDER_BIN:-/usr/local/bin}}
 install() {
 	sudo mkdir -p "\${BUILDER_BIN}" &&
 	echo "$(
-		cat /scripts/builder |
+		cat "${BASH_SOURCE}" |
 		sed "s|^DEFAULT_BUILDER_IMAGE=.*|DEFAULT_BUILDER_IMAGE=${BUILDER_IMAGE}|" |
 		openssl base64
 	)" | openssl base64 -d | sudo tee "\${BUILDER_BIN}/${BUILDER_NAME}" >/dev/null &&
