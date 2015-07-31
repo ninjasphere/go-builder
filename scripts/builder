@@ -64,7 +64,13 @@ EOF
 		if test "${PWD#${GOPATH}}" = "${PWD}"; then
 			die "$(pwd) is not within ${GOPATH} - cannot execute"
 		fi
-		mkdir -p ${GOPATH}/bin/${GOOS}_${GOARCH}
+		os_arch=${GOOS}_${GOARCH}
+		if test "$os_arch" = "linux_amd64"; then
+			client_bin=$GOPATH/bin/$os_arch
+		else
+			client_bin=$GOPATH/bin
+		fi
+		mkdir -p ${GOPATH}/bin/$os_arch
 		docker run \
 			--rm \
 			-it \
@@ -72,7 +78,7 @@ EOF
 			-e GOARCH=${GOARCH} \
 			-e SRC=${PWD#${GOPATH}} \
 			-v /var/run/docker.sock:/var/run/docker.sock \
-			-v ${GOPATH}/bin/${GOOS}_${GOARCH}:/data/go/bin \
+			-v $client_bin:/data/go/bin \
 			-v ${GOPATH}/src:/data/go/src \
 			-v ${PWD}:/data/src \
 			${BUILDER_IMAGE} \
