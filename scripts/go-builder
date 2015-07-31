@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+die() {
+	echo "$*" 1>&2
+	exit 1
+}
+
+usage() {
+	cat <<EOF
+go-builder {command} {args...}
+
+where {command} {args...} is one of:
+	usage
+EOF
+}
+
+cmd=${1:-usage}
+shift 1
+
+case "$cmd" in
+	usage)
+		$cmd "$@"
+	;;
+	*)
+		test -n "$GOPATH" || die "usage: GOPATH must be set up in host environment."
+		GOOS=${GOOS:-linux}
+		GOARCH=${GOARCH:-amd64}
+		mkdir -p ${GOPATH}/bin/${GOOS}_${GOARCH}
+		docker run \
+			--rm \
+			-it \
+			-e GOOS=${GOOS:-linux} \
+			-e GOARCH=${GOARCH:-amd64} \
+			-e SRC=${PWD#${GOPATH}} \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v ${GOPATH}/bin/${GOOS}_${GOARCH}:/data/go/bin \
+			-v ${GOPATH}/src:/data/go/src \
+			-v ${PWD}:/data/src \
+			ninjasphere/go-builder \
+			"$cmd" "$@"
+	;;
+esac
