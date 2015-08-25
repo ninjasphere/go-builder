@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER jon@ninjablocks.com
 
-RUN apt-get update -y && apt-get install -y git mercurial curl make gcc
+RUN apt-get update -y && apt-get install -y git mercurial curl make gcc ruby-dev build-essential s3cmd
 
 # docker
 RUN curl -s https://get.docker.com/ | sh
@@ -18,9 +18,12 @@ RUN GOOS=linux GOARCH=arm ./make.bash
 RUN GOOS=darwin GOARCH=amd64 ./make.bash
 RUN GOOS=windows GOARCH=amd64 ./make.bash
 
+# install fpm
+RUN gem install fpm
+
 ADD scripts /scripts
 
-VOLUME ["/data/go/bin", "/data/go/src", "/data/src", "/var/lib/docker"]
+VOLUME ["/data/go/bin", "/data/go/src", "/data/src", "/var/lib/docker", "/var/packages"]
 
 ENV GOOS=linux
 ENV GOARCH=amd64
