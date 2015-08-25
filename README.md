@@ -66,6 +66,9 @@ To vary the location of the installed script, add a -e BUILDER_BIN argument to s
 
 #REVISION
 
+##1.3
+* add support for fpm and s3cmd
+
 ##1.2
 * build go tools for windows/amd64, darwin/amd64 and linux/arm to image
 
