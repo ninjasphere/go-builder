@@ -81,6 +81,7 @@ EOF
 			-v $client_bin:/data/go/bin \
 			-v ${GOPATH}/src:/data/go/src \
 			-v ${PWD}:/data/src \
+			-v ${HOME}/.s3cfg:/root/.s3cfg \
 			${BUILDER_IMAGE} \
 			"$cmd" "$@"
 	;;
