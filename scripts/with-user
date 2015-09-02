@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# run a command with the specified uid:gid, after guaranteeing that that user exists in the container
+
+die() {
+	echo "$*" 1>&2
+	exit 1
+}
+
+ugid=$1
+
+uid=${ugid%:*}
+gid=${ugid#*:}
+
+test -n "$gid" || die "usage: with-user uid:gid command args..."
+
+shift 1
+
+if ! getent group $gid 1>/dev/null 2>&1; then
+	groupadd -g $gid tmpgroup || die "cannot create tmpgroup"
+fi
+
+if ! getent passwd $uid 1>/dev/null 2>&1; then
+	useradd -d /home/tmpuser -m -u $uid -g $gid tmpuser || die "cannot tmpuser"
+fi
+
+HOME=/home/tmpuser exec sudo -u tmpuser "$@"
