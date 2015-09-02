@@ -87,6 +87,7 @@ EOF
 			-v ${PWD}:/data/go/${SRC} \
 			-v ${PWD}:/data/src \
 			-v ${HOME}/.s3cfg:/root/.s3cfg \
+			-u $(stat -c '%u:%g' "$(pwd)") \  # set the runtime userid to the owner of this directory
 			${BUILDER_EXTRA_RUN_ARGS} \
 			${BUILDER_IMAGE} \
 			"$cmd" "$@"
