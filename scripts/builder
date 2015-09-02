@@ -28,6 +28,18 @@ golang, make, docker are all available within the container.
 EOF
 }
 
+uid-gid-from-file() {
+	local file=$1
+	case $(uname) in
+	Darwin)
+		stat -f '%u:%g' "$file"
+	;;
+	*)
+		stat -c '%u:%g' "$file"
+	;;
+	esac
+}
+
 cmd=${1:-usage}
 shift 1
 
@@ -90,6 +102,7 @@ EOF
 			-v ${HOME}/.s3cfg:/root/.s3cfg \
 			${BUILDER_EXTRA_RUN_ARGS} \
 			${BUILDER_IMAGE} \
+			/scripts/with-user "$(uid-gid-from-file "$(pwd)")" \
 			"$cmd" "$@"
 	;;
 esac
