@@ -75,6 +75,7 @@ EOF
 			client_bin=$GOPATH/bin
 		fi
 		mkdir -p ${GOPATH}/bin/$os_arch
+		mkdir -p ${GOPATH}/${SRC}
 		docker run \
 			--rm \
 			-it \
