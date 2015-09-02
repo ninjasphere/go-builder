@@ -30,5 +30,6 @@ ENV GOARCH=amd64
 WORKDIR /data/src
 ENTRYPOINT ["/scripts/entry"]
 
+ADD src/etc/sudoers /etc/sudoers
 ADD scripts /scripts
 
