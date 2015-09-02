@@ -21,6 +21,8 @@ RUN GOOS=windows GOARCH=amd64 ./make.bash
 # install fpm
 RUN gem install fpm
 
+# make /data/go/pkg world writeable
+RUN mkdir -p /data/go/pkg && chmod o+w /data/go/pkg
 
 VOLUME ["/data/go/bin", "/data/go/src", "/data/src", "/var/lib/docker", "/var/packages"]
 
