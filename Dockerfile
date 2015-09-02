@@ -21,7 +21,6 @@ RUN GOOS=windows GOARCH=amd64 ./make.bash
 # install fpm
 RUN gem install fpm
 
-ADD scripts /scripts
 
 VOLUME ["/data/go/bin", "/data/go/src", "/data/src", "/var/lib/docker", "/var/packages"]
 
@@ -30,4 +29,6 @@ ENV GOARCH=amd64
 
 WORKDIR /data/src
 ENTRYPOINT ["/scripts/entry"]
+
+ADD scripts /scripts
 
