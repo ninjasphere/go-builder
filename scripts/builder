@@ -61,8 +61,12 @@ EOF
 	;;
 	*)
 		test -n "$GOPATH" || die "usage: GOPATH must be set up in host environment."
-		if test "${PWD#${GOPATH}}" = "${PWD}"; then
-			die "$(pwd) is not within ${GOPATH} - cannot execute"
+		if test "${PWD#${GOPATH}}" != "${PWD}"; then
+			SRC=${PWD#${GOPATH}}
+		elif test -z "$PROJECT"; then
+			die "If go-builder is run outside GOPATH, then PROJECT must be defined and be a path relative to $GOPATH/src"
+		else
+			SRC=/src/${PROJECT}
 		fi
 		os_arch=${GOOS}_${GOARCH}
 		if test "$os_arch" = "linux_amd64"; then
@@ -76,10 +80,11 @@ EOF
 			-it \
 			-e GOOS=${GOOS} \
 			-e GOARCH=${GOARCH} \
-			-e SRC=${PWD#${GOPATH}} \
+			-e SRC=${SRC} \
 			-v /var/run/docker.sock:/var/run/docker.sock \
 			-v $client_bin:/data/go/bin \
 			-v ${GOPATH}/src:/data/go/src \
+			-v ${PWD}:/data/go/${SRC} \
 			-v ${PWD}:/data/src \
 			-v ${HOME}/.s3cfg:/root/.s3cfg \
 			${BUILDER_EXTRA_RUN_ARGS} \
